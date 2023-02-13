@@ -1,4 +1,27 @@
-// gmail.gs for slaughter-spam by maxtheaxe
+// function loadAddOn(event) {
+//   var accessToken = event.gmail.accessToken;
+//   var messageId = event.gmail.messageId;
+//   GmailApp.setCurrentMessageAccessToken(accessToken);
+//   var mailMessage = GmailApp.getMessageById(messageId);
+//   var from = mailMessage.getFrom();
+
+//   var action = CardService.newAction().setFunctionName('slaughterThread');
+
+//   var openDocButton = CardService.newTextButton()
+//       .setText("slaughter")
+//       .setOpenLink(
+//           CardService.newOpenLink().setUrl("https://developers.google.com/gmail/add-ons/"));
+
+//   var card = CardService.newCardBuilder()
+//       .setHeader(CardService.newCardHeader().setTitle("My First Gmail Addon"))
+//       .addSection(CardService.newCardSection()
+//           .addWidget(CardService.newTextParagraph().setText("The email is from: " + from))
+//           .addWidget(openDocButton))
+//       .build();
+
+//   return [card];
+// }
+
 
 /**
  * for validating thread IDs used for testing
@@ -118,21 +141,30 @@ function getToken() {
 }
 
 
-/**
- * receive web requests with thread IDs
- */
+// /**
+//  * receive web requests with thread IDs
+//  */
+// function doPost(e) {
+// 	Logger.log(e.parameter.id);
+// 	slaughterThread(e.parameter.id);
+// 	return ContentService.createTextOutput(`successfully slaughtered thread ${e.parameter.id}`);
+// 	// return ContentService.createTextOutput(JSON.stringify(e));
+// }
+
 function doPost(e) {
-	Logger.log(e.parameter.id);
-	slaughterThread(e.parameter.id);
-	return ContentService.createTextOutput(`successfully slaughtered thread ${e.parameter.id}`);
-	// return ContentService.createTextOutput(JSON.stringify(e));
+  return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
 }
 
 
-// function doGet(e) {
-//   var params = JSON.stringify(e);
-//   return HtmlService.createHtmlOutput(params);
-// }
+/**
+ * receive web requests with thread IDs (need to use get to allow CORS)
+ */
+function doGet(e) {
+	Logger.log(e.parameter.id);
+	slaughterThread(e.parameter.id);
+	return ContentService.createTextOutput(`successfully slaughtered thread ${e.parameter.id}`).setMimeType(ContentService.MimeType.JSON);
+	// return ContentService.createTextOutput(JSON.stringify(e));
+}
 
 
 function main () {

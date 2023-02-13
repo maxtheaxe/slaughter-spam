@@ -10,17 +10,18 @@
 
 function deleteThread(threadID) {
 	var requestOptions = {
-		method: 'GET',
-		redirect: 'follow'
+		method: "GET",
+		redirect: "follow"
+		// mode: "no-cors"
 	};
 
-	var url = "https://script.google.com/macros/s/AKfycbxPLHCGnB3S09-3-PsFHtDIZzB2h_9rCPnnPXtIpsWgyRigfkVeRQWJcTsAYT32_pmQcA/exec" +
+	var url = "https://script.google.com/macros/s/AKfycbyVB4hU1YjIZqM2ExJJ5ViT24Y9HTBqyv3wzTCFJ61uS9Wy4b_wDEfaz3AUt6CPb_Z15w/exec" +
 		`?id=${threadID}`
 
 	fetch(url, requestOptions)
 		.then(response => response.text())
 		.then(result => console.log(result))
-		.catch(error => console.log('error', error));
+		.catch(error => console.log("error", error));
 }
 
 function addButtons() {
@@ -44,7 +45,9 @@ function addButtons() {
 		removeButton.src = "https://slaughter.app/assets/images/logo-button.png";
 		removeButton.onclick = function(e){
 			console.log(threadID); // will call appscript in future
-			deleteThread(threadID);
+			// deleteThread(threadID);
+			window.open("https://script.google.com/macros/s/AKfycbyVB4hU1YjIZqM2ExJJ5ViT24Y9HTBqyv3wzTCFJ61uS9Wy4b_wDEfaz3AUt6CPb_Z15w/exec" +
+				`?id=${threadID}`, "_blank"); // to demo functionality, not actually workable like this
 			e.stopPropagation(); // stop onclick from registering and opening email
 		};
 		// thread.insertBefore(removeButton, toolbar.parentNode);
