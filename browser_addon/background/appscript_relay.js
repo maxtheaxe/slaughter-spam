@@ -54,23 +54,50 @@ const handleRelay = async function (threadID, sendResponse) {
     let tab = await asyncOpenBackgroundTab(url, threadID);
     console.log(`tab opened: ${tab.id}`);
     // add evaluation logic to see if request actually worked
-    sendResponse({ success: true});
+    // sendResponse({ success: true});
 };
 
+var targetTab = null;
 console.log("appscript relay online");
-
 
 /**
  * relay image data to server and then result back to content script
  */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    // verify that this message is intended for self and not file downloader
+    // verify that this message is intended for self and not other script/listener
     if (!request.threadID) {
         return; // not for self
     }
+    targetTab = sender.tab.id; // save sender tab as most recent inbox slaughter context
     console.log(request.threadID);
     console.log("relaying threadID to server...");
     handleRelay(request.threadID, sendResponse);
+    // without returning true, sendResponse gets called synchronously
+    // https://developer.chrome.com/docs/extensions/mv3/messaging/
+    return true;
+});
+
+/**
+ * receive results of slaughter event, perform next steps
+ */
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (targetTab !== null) {
+        return; // somehow script was run without being triggered from inbox tab
+    }
+    // verify that this message is intended for self and not other script/listener
+    if (request.validation === null) {
+        return; // not for self
+    } else if (request.validation) { // if request was successful, close the tab
+        chrome.tabs.remove(sender.tab.id);
+        const sending = chrome.tabs.sendMessage(targetTab, {success: true});
+    } else if (request.validation === false) {
+        console.log("something went wrong, please inspect the request tab");
+        const sending = chrome.tabs.sendMessage(targetTab, {success: false});
+    }
+    else if (request.focus) { // if login prompt shows up, needs user input
+        chrome.tabs.update(sender.tab.id, {"active":true}, (tab) => { });
+    }
+    console.log(request);
     // without returning true, sendResponse gets called synchronously
     // https://developer.chrome.com/docs/extensions/mv3/messaging/
     return true;
